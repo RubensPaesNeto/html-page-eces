@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Shannon — O Pai da Teoria da Informação</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #020c14;
+    --bg2: #041828;
+    --bg3: #071f32;
+    --neon: #00ffe7;
+    --neon2: #00b4ff;
+    --neon3: #39ff14;
+    --amber: #ffb300;
+    --text: #c8e6f5;
+    --text-dim: #5a8fa8;
+    --border: rgba(0,255,231,0.15);
+    --glow: 0 0 20px rgba(0,255,231,0.35);
+    --glow2: 0 0 40px rgba(0,180,255,0.2);
+    --font-display: 'Courier New', 'Lucida Console', monospace;
+    --font-body: Georgia, 'Times New Roman', serif;
+    --font-mono: 'Courier New', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* ===== CIRCUIT BACKGROUND ===== */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,231,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,231,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--neon); border-radius: 3px; }
+
+  /* ===== HEADER ===== */
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 80px 24px 60px;
+    text-align: center;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,180,255,0.12) 0%, transparent 70%);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--neon), transparent);
+  }
+
+  .header-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--neon);
+    border: 1px solid var(--border);
+    padding: 6px 18px;
+    border-radius: 2px;
+    margin-bottom: 28px;
+    background: rgba(0,255,231,0.05);
+    animation: pulse-border 3s ease infinite;
+  }
+
+  @keyframes pulse-border {
+    0%, 100% { border-color: rgba(0,255,231,0.15); box-shadow: none; }
+    50% { border-color: rgba(0,255,231,0.6); box-shadow: var(--glow); }
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 5vw, 3.8rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: #fff;
+    margin-bottom: 16px;
+    text-shadow: 0 0 60px rgba(0,255,231,0.4);
+  }
+
+  h1 span {
+    color: var(--neon);
+    text-shadow: 0 0 30px var(--neon), 0 0 60px rgba(0,255,231,0.3);
+  }
+
+  .subtitle {
+    font-family: var(--font-mono);
+    font-size: clamp(0.85rem, 2vw, 1.1rem);
+    color: var(--neon2);
+    letter-spacing: 0.05em;
+    margin-bottom: 36px;
+    opacity: 0.9;
+  }
+
+  /* Birthday banner */
+  .birthday-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(135deg, rgba(255,179,0,0.1), rgba(255,179,0,0.05));
+    border: 1px solid rgba(255,179,0,0.4);
+    border-radius: 4px;
+    padding: 14px 28px;
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    color: var(--amber);
+    box-shadow: 0 0 30px rgba(255,179,0,0.15);
+    animation: birthday-glow 2.5s ease infinite;
+  }
+
+  @keyframes birthday-glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(255,179,0,0.1); }
+    50% { box-shadow: 0 0 40px rgba(255,179,0,0.3), inset 0 0 20px rgba(255,179,0,0.05); }
+  }
+
+  .birthday-icon { font-size: 1.4rem; animation: spin-slow 6s linear infinite; }
+  @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  /* ===== MAIN ===== */
+  main {
+    position: relative;
+    z-index: 5;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 24px;
+  }
+
+  /* ===== SECTION TITLES ===== */
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--neon);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  .section-title .num {
+    color: var(--text-dim);
+    font-size: 0.7rem;
+  }
+
+  /* ===== CARDS / PANELS ===== */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 36px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .card:hover {
+    border-color: rgba(0,255,231,0.35);
+    box-shadow: var(--glow2);
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: linear-gradient(180deg, var(--neon), var(--neon2));
+  }
+
+  /* ===== BIO SECTION ===== */
+  .bio-grid {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 36px;
+    align-items: start;
+  }
+
+  .bio-portrait {
+    position: relative;
+  }
+
+  .portrait-frame {
+    width: 200px;
+    height: 240px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .portrait-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(30%) contrast(1.1);
+    opacity: 0.85;
+    transition: opacity 0.3s;
+  }
+
+  .portrait-frame:hover img { opacity: 1; }
+
+  .portrait-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 50%, rgba(0,12,20,0.8) 100%);
+  }
+
+  .portrait-label {
+    position: absolute;
+    bottom: 8px;
+    left: 0; right: 0;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--neon);
+    text-transform: uppercase;
+  }
+
+  .portrait-corner {
+    position: absolute;
+    width: 12px; height: 12px;
+    border-color: var(--neon);
+    border-style: solid;
+    opacity: 0.7;
+  }
+
+  .portrait-corner.tl { top: 6px; left: 6px; border-width: 2px 0 0 2px; }
+  .portrait-corner.tr { top: 6px; right: 6px; border-width: 2px 2px 0 0; }
+  .portrait-corner.bl { bottom: 6px; left: 6px; border-width: 0 0 2px 2px; }
+  .portrait-corner.br { bottom: 6px; right: 6px; border-width: 0 2px 2px 0; }
+
+  .dates-tag {
+    margin-top: 10px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-align: center;
+    letter-spacing: 0.1em;
+  }
+
+  .bio-text h2 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: #fff;
+    margin-bottom: 16px;
+    letter-spacing: -0.01em;
+  }
+
+  .bio-text p { color: var(--text); margin-bottom: 14px; }
+
+  .bio-text p:last-child { margin-bottom: 0; }
+
+  /* ===== CONTRIBUTIONS ===== */
+  .contrib-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 8px;
+  }
+
+  .contrib-item {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 20px;
+    transition: all 0.3s;
+    cursor: default;
+    position: relative;
+  }
+
+  .contrib-item:hover {
+    border-color: var(--neon2);
+    background: rgba(0,180,255,0.08);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0,180,255,0.15);
+  }
+
+  .contrib-icon {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .contrib-item h3 {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--neon2);
+    margin-bottom: 8px;
+  }
+
+  .contrib-item p {
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* ===== CURIOSIDADES ===== */
+  .curiosidades-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    border: 1px solid var(--neon);
+    color: var(--neon);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 12px 24px;
+    cursor: pointer;
+    border-radius: 2px;
+    margin-bottom: 24px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .curiosidades-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--neon);
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+    z-index: 0;
+    opacity: 0.1;
+  }
+
+  .curiosidades-btn:hover::before { transform: translateX(0); }
+  .curiosidades-btn:hover { box-shadow: var(--glow); }
+  .curiosidades-btn span { position: relative; z-index: 1; }
+
+  .arrow-icon { transition: transform 0.3s; }
+  .arrow-icon.open { transform: rotate(90deg); }
+
+  .curiosidades-list {
+    display: none;
+    list-style: none;
+  }
+
+  .curiosidades-list.visible { display: block; }
+
+  .curiosidades-list li {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.93rem;
+    color: var(--text);
+    animation: slide-in 0.4s ease both;
+  }
+
+  .curiosidades-list li:last-child { border-bottom: none; }
+
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateX(-16px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .curiosidades-list li::before {
+    content: '›';
+    color: var(--neon3);
+    font-family: var(--font-mono);
+    font-size: 1.2rem;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* ===== TIMELINE TABLE ===== */
+  .timeline-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .timeline-table thead tr {
+    border-bottom: 2px solid rgba(0,255,231,0.3);
+  }
+
+  .timeline-table th {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--neon);
+    padding: 12px 16px;
+    text-align: left;
+  }
+
+  .timeline-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--text);
+  }
+
+  .timeline-table tbody tr {
+    transition: background 0.2s;
+  }
+
+  .timeline-table tbody tr:hover {
+    background: rgba(0,255,231,0.04);
+  }
+
+  .year-cell {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    color: var(--neon2);
+    font-weight: bold;
+    white-space: nowrap;
+    width: 80px;
+  }
+
+  .event-title {
+    color: #fff;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 3px;
+    font-size: 0.9rem;
+  }
+
+  .event-desc {
+    color: var(--text-dim);
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+
+  .highlight-row td { background: rgba(57,255,20,0.04) !important; }
+  .highlight-row .year-cell { color: var(--neon3); }
+
+  /* ===== TYPING DEMO ===== */
+  .typing-demo {
+    background: #000;
+    border: 1px solid rgba(0,255,231,0.2);
+    border-radius: 4px;
+    padding: 24px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--neon);
+    min-height: 80px;
+    position: relative;
+  }
+
+  .typing-demo::before {
+    content: '$ shannon@information-theory:~#';
+    display: block;
+    color: var(--text-dim);
+    font-size: 0.72rem;
+    margin-bottom: 10px;
+  }
+
+  #typed-text { }
+  .cursor-blink {
+    display: inline-block;
+    width: 9px;
+    height: 1.1em;
+    background: var(--neon);
+    vertical-align: text-bottom;
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* ===== INFO STRIP ===== */
+  .info-strip {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 40px;
+    overflow: hidden;
+    border-radius: 3px;
+  }
+
+  .strip-item {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 18px;
+    text-align: center;
+    transition: all 0.3s;
+    min-width: 0;
+  }
+
+  .strip-item:hover { background: rgba(0,255,231,0.06); border-color: rgba(0,255,231,0.3); }
+
+  .strip-num {
+    font-family: var(--font-display);
+    font-size: 1.9rem;
+    color: var(--neon);
+    display: block;
+    font-weight: bold;
+    text-shadow: 0 0 20px rgba(0,255,231,0.5);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .strip-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  /* ===== LINKS ===== */
+  .links-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .ext-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--neon2);
+    text-decoration: none;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    padding: 10px 18px;
+    border-radius: 2px;
+    transition: all 0.3s;
+  }
+
+  .ext-link:hover {
+    border-color: var(--neon2);
+    background: rgba(0,180,255,0.1);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(0,180,255,0.2);
+  }
+
+  .ext-link .arrow { opacity: 0; transform: translateX(-4px); transition: all 0.3s; }
+  .ext-link:hover .arrow { opacity: 1; transform: translateX(0); }
+
+  /* ===== THEME TOGGLE ===== */
+  .theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--neon); color: var(--neon); box-shadow: var(--glow); }
+  .toggle-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--neon); transition: background 0.3s; }
+
+  /* ===== LIGHT THEME ===== */
+  body.light {
+    --bg: #f0f4f8;
+    --bg2: #e4ecf4;
+    --bg3: #d8e6f0;
+    --neon: #0070b8;
+    --neon2: #005a99;
+    --neon3: #007a00;
+    --amber: #c07000;
+    --text: #1a3046;
+    --text-dim: #4a6a86;
+    --border: rgba(0,112,184,0.2);
+  }
+
+  body.light { background: var(--bg); }
+  body.light h1 { text-shadow: none; color: var(--bg); }
+  body.light h1 span { text-shadow: none; }
+  body.light .typing-demo { background: #fff; }
+
+  /* ===== FOOTER ===== */
+  footer {
+    position: relative;
+    z-index: 5;
+    text-align: center;
+    padding: 40px 24px;
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+  }
+
+  footer::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--neon2), transparent);
+  }
+
+  .footer-logo {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    color: var(--neon);
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+
+  footer p {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+  }
+
+  /* ===== ANIMATED BITS BG ===== */
+  #bits-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.35;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 700px) {
+    .bio-grid { grid-template-columns: 1fr; }
+    .bio-portrait { display: flex; flex-direction: column; align-items: center; }
+    .portrait-frame { width: 160px; height: 190px; }
+    .strip-item { padding: 12px 8px; }
+    .strip-num { font-size: 1.4rem; }
+    .card { padding: 22px 18px; }
+    header { padding: 60px 16px 40px; }
+    .theme-toggle { top: 12px; right: 12px; padding: 6px 12px; }
+    .contrib-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 440px) {
+    .contrib-grid { grid-template-columns: 1fr; }
+    .info-strip { flex-wrap: wrap; }
+    .strip-item { flex: 1 1 45%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Falling bits animation canvas -->
+<canvas id="bits-canvas"></canvas>
+
+<!-- Theme toggle -->
+<button class="theme-toggle" id="themeBtn" aria-label="Alternar tema">
+  <span class="toggle-dot" id="toggleDot"></span>
+  <span id="themeLabel">ESCURO</span>
+</button>
+
+<!-- ===== HEADER ===== -->
+<header>
+  <div class="header-badge">// TRIBUTE PAGE — INFORMATION THEORY</div>
+  <h1>Claude <span>Shannon</span></h1>
+  <p class="subtitle">O Pai da Teoria da Informação &amp; Fundador da Era Digital</p>
+  <div class="birthday-banner">
+    <span class="birthday-icon">✦</span>
+    <span>Parabéns pelo seu legado eterno, Shannon!</span>
+    <span class="birthday-icon">✦</span>
+  </div>
+</header>
+
+<!-- ===== MAIN ===== -->
+<main>
+
+  <!-- INFO STRIP -->
+  <div class="info-strip">
+    <div class="strip-item">
+      <span class="strip-num">1</span>
+      <span class="strip-label">Bit — inventado</span>
+    </div>
+    <div class="strip-item">
+      <span class="strip-num">1948</span>
+      <span class="strip-label">A Mathematical Theory</span>
+    </div>
+    <div class="strip-item">
+      <span class="strip-num">72</span>
+      <span class="strip-label">Anos de vida</span>
+    </div>
+    <div class="strip-item">
+      <span class="strip-num">∞</span>
+      <span class="strip-label">Impacto no mundo</span>
+    </div>
+  </div>
+
+  <!-- BIOGRAFIA -->
+  <p class="section-title"><span class="num">01 /</span> Biografia</p>
+  <div class="card">
+    <div class="bio-grid">
+      <div class="bio-portrait">
+        <div class="portrait-frame">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/ClaudeShannon_MFO3807.jpg/330px-ClaudeShannon_MFO3807.jpg"
+               alt="Fotografia de Claude Shannon"
+               onerror="this.style.display='none'; this.parentElement.innerHTML += '<div style=\'font-size:4rem;padding:20px;text-align:center;\'>🧠</div><div style=\'font-size:0.7rem;color:var(--text-dim);text-align:center;padding:8px;\'>Claude Shannon</div>'">
+          <div class="portrait-overlay"></div>
+          <div class="portrait-corner tl"></div>
+          <div class="portrait-corner tr"></div>
+          <div class="portrait-corner bl"></div>
+          <div class="portrait-corner br"></div>
+          <div class="portrait-label">C. E. Shannon</div>
+        </div>
+        <div class="dates-tag">30 ABR 1916 — 24 FEV 2001</div>
+      </div>
+      <div class="bio-text">
+        <h2>Claude Elwood Shannon</h2>
+        <p>
+          Nascido em 30 de abril de 1916, em Petoskey, Michigan, Claude Elwood Shannon foi um matemático e engenheiro elétrico norte-americano cujas ideias transformaram radicalmente nossa compreensão sobre comunicação e processamento de dados.
+        </p>
+        <p>
+          Ao longo de sua carreira nos laboratórios Bell e no MIT, Shannon desenvolveu os alicerces matemáticos que tornaram possíveis computadores, internet, smartphones e praticamente toda tecnologia de comunicação digital que usamos hoje.
+        </p>
+        <p>
+          Seu artigo de 1948, <em>"A Mathematical Theory of Communication"</em>, publicado na Bell System Technical Journal, é considerado uma das obras científicas mais influentes do século XX — fundando formalmente a <strong>Teoria da Informação</strong>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTRIBUIÇÕES -->
+  <p class="section-title"><span class="num">02 /</span> Principais Contribuições</p>
+  <div class="card">
+    <div class="contrib-grid">
+      <div class="contrib-item">
+        <span class="contrib-icon">⑀</span>
+        <h3>O Bit</h3>
+        <p>Cunhou o termo "bit" (binary digit) como unidade fundamental de informação — o átomo de toda comunicação digital.</p>
+      </div>
+      <div class="contrib-item">
+        <span class="contrib-icon">📐</span>
+        <h3>Entropia da Informação</h3>
+        <p>Definiu matematicamente a entropia como medida da incerteza e quantidade de informação em uma mensagem.</p>
+      </div>
+      <div class="contrib-item">
+        <span class="contrib-icon">🔗</span>
+        <h3>Capacidade de Canal</h3>
+        <p>Provou o Teorema de Shannon–Hartley: a taxa máxima de transmissão sem erros em qualquer canal de comunicação.</p>
+      </div>
+      <div class="contrib-item">
+        <span class="contrib-icon">🔐</span>
+        <h3>Criptografia</h3>
+        <p>Com "Communication Theory of Secrecy Systems" (1949), estabeleceu as bases matemáticas da criptografia moderna.</p>
+      </div>
+      <div class="contrib-item">
+        <span class="contrib-icon">💡</span>
+        <h3>Álgebra Booleana</h3>
+        <p>Em sua tese de mestrado (1937), demonstrou como a lógica booleana poderia ser implementada em circuitos elétricos.</p>
+      </div>
+      <div class="contrib-item">
+        <span class="contrib-icon">🤖</span>
+        <h3>Inteligência Artificial</h3>
+        <p>Pioneiro em IA: criou o primeiro programa de xadrez computacional e estudou o comportamento de máquinas "aprendizes".</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TYPING DEMO -->
+  <p class="section-title"><span class="num">03 /</span> Terminal da Teoria</p>
+  <div class="card">
+    <div class="typing-demo">
+      <span id="typed-text"></span><span class="cursor-blink"></span>
+    </div>
+  </div>
+
+  <!-- CURIOSIDADES -->
+  <p class="section-title"><span class="num">04 /</span> Curiosidades</p>
+  <div class="card">
+    <button class="curiosidades-btn" id="curiBtn" aria-expanded="false">
+      <span class="arrow-icon" id="arrowIcon">▶</span>
+      <span>[ EXIBIR CURIOSIDADES ]</span>
+    </button>
+    <ul class="curiosidades-list" id="curiList" role="list">
+      <li>Shannon era um ávido jogador de monociclo e andava pelos corredores dos laboratórios Bell enquanto fazia malabarismos — às vezes simultaneamente.</li>
+      <li>Ele construiu em casa uma série de dispositivos inusitados, incluindo um mouse robótico chamado "Theseus" que aprendia a percorrer labirintos — um dos primeiros exemplos de machine learning.</li>
+      <li>Criou a "THROBAC" — uma máquina de calcular que operava em numeração romana, apenas por diversão e desafio intelectual.</li>
+      <li>Shannon possuía um dos maiores coleções particulares de pôneis-de-aço e objetos lúdicos em Massachusetts, expressando sua visão de que ciência e brincadeira são inseparáveis.</li>
+      <li>Seu artigo de 1948 foi originalmente submetido como um artigo técnico interno da Bell, sem ambições de ser uma revolução — mas acabou fundando uma nova área da ciência.</li>
+      <li>Embora reconhecido mundialmente, Shannon era extremamente modesto e raramente aparecia em conferências ou concedia entrevistas na fase final de sua vida.</li>
+      <li>Em 1985, quando apareceu de surpresa numa conferência de teoria da informação, os presentes o ovacionaram de pé como se fosse uma aparição de um lendário rock star da ciência.</li>
+    </ul>
+  </div>
+
+  <!-- LINHA DO TEMPO -->
+  <p class="section-title"><span class="num">05 /</span> Linha do Tempo</p>
+  <div class="card">
+    <table class="timeline-table" aria-label="Linha do tempo de Claude Shannon">
+      <thead>
+        <tr>
+          <th scope="col">Ano</th>
+          <th scope="col">Evento</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="highlight-row">
+          <td class="year-cell">1916</td>
+          <td>
+            <span class="event-title">🎂 Nascimento</span>
+            <span class="event-desc">Nasce em Petoskey, Michigan, em 30 de abril.</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="year-cell">1936</td>
+          <td>
+            <span class="event-title">Graduação em Michigan</span>
+            <span class="event-desc">Bacharel em Engenharia Elétrica e Matemática pela University of Michigan.</span>
+          </td>
+        </tr>
+        <tr class="highlight-row">
+          <td class="year-cell">1937</td>
+          <td>
+            <span class="event-title">A Tese que Mudou Tudo</span>
+            <span class="event-desc">Tese de mestrado no MIT — demonstra como álgebra booleana pode ser usada para projetar circuitos digitais.</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="year-cell">1940</td>
+          <td>
+            <span class="event-title">Doutorado no MIT</span>
+            <span class="event-desc">Conclui seu PhD em Matemática, com uma tese sobre genética algébrica.</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="year-cell">1943</td>
+          <td>
+            <span class="event-title">Encontro com Alan Turing</span>
+            <span class="event-desc">Durante a Segunda Guerra, Shannon e Turing se encontram nos Bell Labs e trocam ideias sobre inteligência de máquinas.</span>
+          </td>
+        </tr>
+        <tr class="highlight-row">
+          <td class="year-cell">1948</td>
+          <td>
+            <span class="event-title">⚡ A Mathematical Theory of Communication</span>
+            <span class="event-desc">Publicação do artigo fundador da Teoria da Informação, introduzindo os conceitos de bit, entropia e capacidade de canal.</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="year-cell">1949</td>
+          <td>
+            <span class="event-title">Communication Theory of Secrecy Systems</span>
+            <span class="event-desc">Artigo que funda a criptografia matemática moderna, provando que o one-time pad é inquebrável.</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="year-cell">1950</td>
+          <td>
+            <span class="event-title">Programming a Computer for Playing Chess</span>
+            <span class="event-desc">Publica o primeiro algoritmo para jogar xadrez computacionalmente — pioneirismo em IA.</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="year-cell">1956</td>
+          <td>
+            <span class="event-title">Professor no MIT</span>
+            <span class="event-desc">Torna-se professor de matemática e engenharia elétrica no MIT.</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="year-cell">1966</td>
+          <td>
+            <span class="event-title">Medalha Nacional de Ciências (EUA)</span>
+            <span class="event-desc">Recebe a maior honraria científica norte-americana das mãos do presidente.</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="year-cell">2001</td>
+          <td>
+            <span class="event-title">Falecimento</span>
+            <span class="event-desc">Claude Shannon falece em 24 de fevereiro, deixando um legado que fundamenta toda a era digital.</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- LINKS -->
+  <p class="section-title"><span class="num">06 /</span> Saiba Mais</p>
+  <div class="card">
+    <div class="links-grid">
+      <a class="ext-link" href="https://pt.wikipedia.org/wiki/Claude_Shannon" target="_blank" rel="noopener">
+        📖 Wikipedia — Claude Shannon <span class="arrow">→</span>
+      </a>
+      <a class="ext-link" href="https://people.math.harvard.edu/~ctm/home/text/others/shannon/entropy/entropy.pdf" target="_blank" rel="noopener">
+        📄 Artigo Original de 1948 (PDF) <span class="arrow">→</span>
+      </a>
+      <a class="ext-link" href="https://www.youtube.com/results?search_query=claude+shannon+information+theory" target="_blank" rel="noopener">
+        🎬 Vídeos Educativos no YouTube <span class="arrow">→</span>
+      </a>
+      <a class="ext-link" href="https://thebitplayer.com/" target="_blank" rel="noopener">
+        🎥 The Bit Player — Documentário <span class="arrow">→</span>
+      </a>
+      <a class="ext-link" href="https://en.wikipedia.org/wiki/Information_theory" target="_blank" rel="noopener">
+        ∑ Teoria da Informação (EN) <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-logo">{ C. E. SHANNON }</div>
+  <p>1916 – 2001 &nbsp;·&nbsp; "The fundamental problem of communication is that of reproducing at one point either exactly or approximately a message selected at another point."</p>
+  <p style="margin-top:12px;">Homenagem criada com admiração pelo pai da era digital.</p>
+</footer>
+
+<script>
+  /* ===== FALLING BITS CANVAS ===== */
+  (function() {
+    const canvas = document.getElementById('bits-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, drops;
+
+    function resize() {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+      const cols = Math.floor(W / 22);
+      drops = Array.from({ length: cols }, () => Math.random() * -H / 14);
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+
+    const chars = '01';
+
+    function draw() {
+      ctx.fillStyle = 'rgba(2, 12, 20, 0.07)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.font = '13px Courier New';
+
+      drops.forEach((y, i) => {
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        const alpha = Math.random() > 0.92 ? 1 : 0.2;
+        ctx.fillStyle = `rgba(0, 255, 231, ${alpha})`;
+        ctx.fillText(char, i * 22, y * 14);
+        drops[i] = y > H / 14 + 20 ? (Math.random() > 0.97 ? -10 : drops[i]) : y + 0.4;
+      });
+    }
+
+    setInterval(draw, 60);
+  })();
+
+  /* ===== TYPING EFFECT ===== */
+  (function() {
+    const el = document.getElementById('typed-text');
+    const messages = [
+      'H(X) = -Σ p(x) · log₂ p(x)   // Entropia de Shannon',
+      '"The bit is the unit of information." — C. Shannon, 1948',
+      'C = B · log₂(1 + S/N)          // Capacidade de Canal',
+      '"Information is the resolution of uncertainty."',
+      'Nascido em 30 ABR 1916. Legado: infinito. 🎂',
+    ];
+    let msgIdx = 0, charIdx = 0, deleting = false;
+    const delay = (ms) => new Promise(r => setTimeout(r, ms));
+
+    async function type() {
+      while (true) {
+        const msg = messages[msgIdx];
+        if (!deleting) {
+          el.textContent = msg.slice(0, ++charIdx);
+          if (charIdx === msg.length) { await delay(2200); deleting = true; }
+          else await delay(38);
+        } else {
+          el.textContent = msg.slice(0, --charIdx);
+          if (charIdx === 0) { deleting = false; msgIdx = (msgIdx + 1) % messages.length; await delay(400); }
+          else await delay(18);
+        }
+      }
+    }
+    type();
+  })();
+
+  /* ===== CURIOSIDADES TOGGLE ===== */
+  (function() {
+    const btn = document.getElementById('curiBtn');
+    const list = document.getElementById('curiList');
+    const arrow = document.getElementById('arrowIcon');
+    let open = false;
+
+    btn.addEventListener('click', () => {
+      open = !open;
+      list.classList.toggle('visible', open);
+      arrow.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', open);
+      // Re-trigger animations
+      if (open) {
+        const items = list.querySelectorAll('li');
+        items.forEach((li, i) => {
+          li.style.animation = 'none';
+          li.offsetHeight; // reflow
+          li.style.animation = `slide-in 0.4s ease ${i * 0.07}s both`;
+        });
+      }
+    });
+  })();
+
+  /* ===== THEME TOGGLE ===== */
+  (function() {
+    const btn = document.getElementById('themeBtn');
+    const label = document.getElementById('themeLabel');
+    const dot = document.getElementById('toggleDot');
+    let light = false;
+
+    btn.addEventListener('click', () => {
+      light = !light;
+      document.body.classList.toggle('light', light);
+      label.textContent = light ? 'CLARO' : 'ESCURO';
+      dot.style.background = light ? '#0070b8' : 'var(--neon)';
+    });
+  })();
+</script>
+</body>
+</html>
